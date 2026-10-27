@@ -121,49 +121,86 @@ h1,h2,h3,p{margin:0}
 .prio[aria-pressed="true"] .switch::after{transform:translateX(20px)}
 .x3{font:600 11px var(--mono);color:var(--lime-deep);margin-left:6px}
 
-/* 3 results */
-.mapcard{position:relative;margin:0 0 0;height:330px;overflow:hidden;background:#eef1ec}
-.mapcard svg{width:100%;height:100%;display:block}
-.searchpill{position:absolute;top:10px;left:14px;right:14px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border-radius:16px;padding:10px 12px;font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(21,39,42,.12)}
-.searchpill span{color:var(--faint);font-weight:500;margin-left:auto;font:500 11px var(--mono)}
-.chips{position:absolute;left:0;right:0;bottom:10px;display:flex;gap:6px;overflow-x:auto;padding:0 14px;scrollbar-width:none}
+/* 3 results: a full-height map you can drag and pinch, overlays on top, a bottom sheet with the ranking */
+.view.mapview{padding:0;overflow:hidden;position:relative}
+.map{position:absolute;inset:0 0 88px 0;background:#e8ebe4;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.map.dragging{cursor:grabbing}
+.map svg{width:100%;height:100%;display:block}
+.searchpill{position:absolute;top:58px;left:14px;right:14px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.96);border-radius:16px;padding:10px 12px;font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(21,39,42,.14);z-index:5}
+.searchpill span{color:var(--faint);margin-left:auto;font:500 11px var(--mono)}
+.chips{position:absolute;top:106px;left:0;right:0;display:flex;gap:6px;overflow-x:auto;padding:0 14px 4px;scrollbar-width:none;z-index:5}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;font-size:12px;font-weight:600;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 3px 10px rgba(21,39,42,.12);white-space:nowrap}
+.chip{flex:none;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 11px 7px 8px;border-radius:999px;background:rgba(255,255,255,.96);box-shadow:0 3px 10px rgba(21,39,42,.12);white-space:nowrap}
+.chip i{width:18px;height:18px;border-radius:6px;display:grid;place-items:center}
 .chip[aria-pressed="true"]{background:var(--night);color:#fff}
-.sheet{position:relative;margin-top:-22px;background:var(--cream);border-radius:28px 28px 0 0;padding:10px 16px 0;z-index:2}
-.grab{width:40px;height:5px;border-radius:3px;background:#d4cfc2;margin:0 auto 12px}
-.sheet-head{display:flex;justify-content:space-between;align-items:baseline;padding:0 6px 10px}
-.sheet-head b{font-size:17px;letter-spacing:-.02em}
-.sheet-head span{font-size:12px;color:var(--muted)}
-.cards{display:grid;gap:8px;position:relative}
-.card{display:grid;grid-template-columns:52px minmax(0,1fr) 54px;gap:12px;align-items:center;padding:10px;border-radius:20px;background:var(--paper);border:1.5px solid transparent;width:100%;transition:border-color .25s}
+.zoom{position:absolute;right:12px;top:150px;display:grid;gap:6px;z-index:5}
+.zoom button{width:40px;height:40px;border-radius:13px;background:rgba(255,255,255,.96);box-shadow:0 3px 10px rgba(21,39,42,.14);display:grid;place-items:center;font:600 20px var(--font);color:var(--ink)}
+.legend{position:absolute;left:10px;right:64px;bottom:342px;z-index:4;display:grid;gap:6px;pointer-events:none}
+.lg{background:rgba(255,255,255,.9);border-radius:12px;padding:6px 9px;box-shadow:0 3px 12px rgba(21,39,42,.12);font-size:10.5px;color:var(--muted);display:grid;gap:4px;max-width:186px}
+.lg b{font-size:10.5px;color:var(--ink)}
+.db-bar{height:8px;border-radius:4px;background:linear-gradient(90deg,#3f9d6b,#a8c94b 30%,#e9c36a 50%,#ef8a4c 72%,#d4483b)}
+.db-scale{display:flex;justify-content:space-between;font:500 9.5px var(--mono);color:var(--faint)}
+.lg .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.lg .sw{width:12px;height:12px;border-radius:4px;display:inline-block;vertical-align:-2px;margin-right:4px}
+.hint-chip{position:absolute;left:50%;top:150px;transform:translateX(-50%);z-index:4;background:rgba(21,39,42,.88);color:#fff;font-size:11.5px;padding:6px 10px;border-radius:999px;pointer-events:none;white-space:nowrap}
+.street-tip{position:absolute;z-index:6;left:14px;right:64px;top:150px;background:var(--night);color:#fff;border-radius:16px;padding:11px 13px;display:grid;gap:3px;box-shadow:0 10px 24px rgba(0,0,0,.25);animation:pop .3s var(--ease)}
+.street-tip b{font-size:14px}
+.street-tip span{font-size:12px;color:var(--on-night-muted)}
+.street-tip .db{font:600 22px var(--mono)}
+.sheet{position:absolute;left:0;right:0;bottom:88px;z-index:7;background:var(--cream);border-radius:26px 26px 0 0;box-shadow:0 -10px 30px rgba(21,39,42,.16);padding:8px 14px 12px;display:grid;gap:10px;transition:height .45s var(--ease);height:244px;overflow:hidden}
+.sheet.open{height:600px}
+.grab{width:40px;height:5px;border-radius:3px;background:#d4cfc2;margin:0 auto}
+.sheet-head{display:flex;justify-content:space-between;align-items:center;padding:0 4px}
+.sheet-head b{font-size:16px;letter-spacing:-.02em}
+.sheet-head small{display:block;font-size:11.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.sheet-toggle{font-size:12px;font-weight:600;padding:7px 11px;border-radius:999px;background:var(--paper);border:1px solid var(--line)}
+.sheet .cards{overflow-y:auto;scrollbar-width:none;padding-bottom:10px}
+.sheet .cards::-webkit-scrollbar{display:none}
+.preview .cta{padding:12px;border-radius:14px;font-size:14px}
+.cards{display:grid;gap:8px;position:relative;align-content:start}
+.card{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr) 54px;gap:12px;align-items:center;padding:10px;border-radius:20px;background:var(--paper);border:1.5px solid transparent;width:100%;transition:border-color .25s}
 .card.best{border-color:var(--lime-deep);background:#fbfdf4}
-.thumb{width:52px;height:52px;border-radius:15px;position:relative;overflow:hidden}
+.card.sel{border-color:var(--night)}
+.thumb{width:52px;height:52px;border-radius:15px;position:relative;overflow:hidden;flex:none}
 .thumb b{position:absolute;left:5px;bottom:4px;font:600 11px var(--mono);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4)}
 .card .nm{font-size:13.5px;font-weight:600;line-height:1.25;display:block}
 .card .mt{font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
 .card .bars{display:flex;gap:3px;margin-top:6px}
 .card .bars i{height:4px;width:26px;border-radius:2px;background:#ebe7dc;position:relative;overflow:hidden}
 .card .bars i::after{content:"";position:absolute;inset:0;width:var(--v);background:var(--c,var(--teal))}
-.ring{position:relative;width:54px;height:54px}
+.ring{position:relative;width:54px;height:54px;flex:none}
 .ring svg{transform:rotate(-90deg)}
 .ring .v{position:absolute;inset:0;display:grid;place-items:center;font:600 16px var(--mono);font-variant-numeric:tabular-nums}
 .bestflag{position:absolute;top:-8px;left:12px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--lime);color:var(--night);padding:3px 7px;border-radius:6px}
-.card{position:relative}
 
-/* map pieces */
-.m-ground{fill:#eef1ec}.m-block{fill:#fbfaf6;stroke:#dcd7c9;stroke-width:1.5}.m-park{fill:#cfe4c1}.m-avenue{stroke:#cbc5b5;stroke-width:18;fill:none}
-.m-noise{stroke:#f0a37a;stroke-width:60;fill:none;opacity:.55;stroke-linecap:round}.m-noise-w{stroke:#f0a37a;stroke-width:130;opacity:.22;fill:none;stroke-linecap:round}
-.m-ring{fill:rgba(105,179,165,.16);stroke:#69b3a5;stroke-width:2.5;stroke-dasharray:8 8}
-.m-shop{fill:#e9c36a;stroke:#fff;stroke-width:2}
-.m-safe{fill:rgba(105,179,165,.14)}.m-safe-low{fill:rgba(240,163,122,.18)}
-.m-sym rect{fill:#2a6a5e}.m-sym.s rect{fill:#b08419}.m-sym text{fill:#fff;font:700 16px var(--font);text-anchor:middle}
-.layer{opacity:0;transition:opacity .45s}
+/* map drawing */
+.w-ground{fill:#e8ebe4}
+.w-block{fill:#f8f6ef;stroke:#e0dccf;stroke-width:1.5}
+.w-park{fill:#c9e2b8}.w-park-tree{fill:#a9cf94}
+.w-street-casing{stroke:#d9d4c6;fill:none;stroke-linecap:round}
+.w-street{stroke:#ffffff;fill:none;stroke-linecap:round;transition:stroke .5s}
+.w-hit{stroke:transparent;fill:none;stroke-width:44;cursor:pointer}
+.w-label{font:600 15px var(--font);fill:#8d958f;letter-spacing:.04em;pointer-events:none;paint-order:stroke;stroke:#f8f6ef;stroke-width:5px;stroke-linejoin:round}
+.w-label.big{font-size:17px;fill:#6f7a74}
+.w-park-label{font:600 16px var(--font);fill:#5d8a4f;pointer-events:none}
+.layer{opacity:0;transition:opacity .45s;pointer-events:none}
 svg.show-quiet .l-quiet,svg.show-transit .l-transit,svg.show-walk .l-walk,svg.show-safe .l-safe{opacity:1}
-.m-pin{cursor:pointer}.m-pin circle{fill:var(--night);stroke:#fff;stroke-width:3;transition:fill .3s}.m-pin text{fill:#fff;font:600 17px var(--mono);text-anchor:middle;pointer-events:none}
-.m-pin.best circle{fill:var(--lime-deep);stroke:var(--lime);stroke-width:5}
-.m-pin.best .halo{fill:none;stroke:var(--lime);stroke-width:3;opacity:.7;animation:halo 1.8s var(--ease) infinite}
-@keyframes halo{from{r:20;opacity:.8}to{r:40;opacity:0}}
+svg.show-quiet .w-label{fill:#4a5450}
+.glow{fill:none;stroke-linecap:round;opacity:.28;filter:url(#blur)}
+.iso5{fill:rgba(42,106,94,.16);stroke:#2a6a5e;stroke-width:2}
+.iso10{fill:rgba(105,179,165,.08);stroke:#69b3a5;stroke-width:2.5;stroke-dasharray:10 8}
+.iso-label{font:600 13px var(--mono);fill:#2a6a5e;paint-order:stroke;stroke:#fff;stroke-width:4px}
+.dist-label{font:700 13px var(--font);letter-spacing:.06em;text-transform:uppercase;paint-order:stroke;stroke:#fff;stroke-width:5px}
+.m-pin{cursor:pointer}
+.m-pin .pbody{fill:var(--night);stroke:#fff;stroke-width:2.5}
+.m-pin text{fill:#fff;font:700 13px var(--mono);text-anchor:middle;pointer-events:none}
+.m-pin .sbadge{stroke:#fff;stroke-width:2}
+.m-pin .stext{font:700 10px var(--mono);fill:#fff}
+.m-pin.best .pbody{fill:var(--lime-deep);stroke:var(--lime);stroke-width:3.5}
+.m-pin.sel .pbody{stroke:var(--sun);stroke-width:4}
+.pi-in{transform-box:fill-box;transform-origin:50% 100%}
+.m-pin.pop .pi-in{animation:pinpop .6s var(--ease)}
+@keyframes pinpop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
 
 /* 4 report */
 .rep-hero{position:relative;height:250px;margin-top:-62px;overflow:hidden}
@@ -229,8 +266,9 @@ svg.show-quiet .l-quiet,svg.show-transit .l-transit,svg.show-walk .l-walk,svg.sh
   .views{width:100%}
   .view{flex:0 0 100%;height:100%;padding-top:16px}
   .rep-hero{margin-top:-16px}.rep-top{top:16px}
-  .mapcard{margin-top:-16px!important;height:min(390px,52dvh)!important}
-  .searchpill{top:12px!important}
+  .map{bottom:68px}.sheet{bottom:68px}.legend{bottom:322px}.sheet.open{height:72dvh}
+  .searchpill{top:12px}.chips{top:60px}.zoom{top:104px}.street-tip,.hint-chip{top:104px}
+  .view.mapview{padding:0}
   .tabbar{height:auto;padding:8px 18px calc(10px + env(safe-area-inset-bottom,0px))}
   .home-ind{display:none}
   .view{padding-bottom:96px}
@@ -277,25 +315,49 @@ const PERSONAS=[
  {id:'couple',name:'Couple who wants quiet',desc:'Sleeps with the window open.',on:['quiet','safe'],em:'<svg width="22" height="22" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#c96a3a"/></svg>',bg:'#fbe4d8'},
  {id:'family',name:'Family',desc:'A school, a park, a safe walk home.',on:['safe','walk'],em:'<svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 20V10l9-6 9 6v10z" fill="#b08419"/><rect x="10" y="13" width="4" height="7" fill="#fff"/></svg>',bg:'#f8edd0'}];
 const FLATS=[
- {id:'a',name:'Bright 2-bed above the avenue',price:1180,m2:74,x:300,y:262,g:['#f0c9a8','#c98f6b'],s:{quiet:28,safe:74,transit:92,walk:96},
-  d:{quiet:'Facade on a 4-lane avenue: about 68 dB at night, above the legal limit.',safe:'District in the city average.',transit:'Metro 3 min on foot.',walk:'Supermarket, pharmacy and bakery within 5 min.'}},
- {id:'b',name:'Quiet 2-bed on a side street',price:1150,m2:70,x:470,y:120,g:['#cfe4c1','#8fb58a'],s:{quiet:91,safe:80,transit:66,walk:82},
-  d:{quiet:'One-way residential street: about 48 dB at night.',safe:'Slightly safer than the city average.',transit:'Metro 11 min on foot.',walk:'Shops within 8 min.'}},
- {id:'c',name:'Sunny 2-bed facing the park',price:1195,m2:78,x:140,y:440,g:['#e9e2a8','#b7c27a'],s:{quiet:84,safe:86,transit:58,walk:70},
-  d:{quiet:'Faces the park: quiet at night, busy on Sunday mornings.',safe:'One of the safest districts in the sample.',transit:'Metro 14 min on foot.',walk:'Few shops; supermarket 12 min.'}},
- {id:'d',name:'Top-floor 2-bed by the metro',price:1120,m2:68,x:452,y:372,g:['#bcd8e8','#7aa3bb'],s:{quiet:55,safe:72,transit:98,walk:90},
-  d:{quiet:'Near the avenue, but top floor: about 59 dB at night.',safe:'City average.',transit:'Metro entrance 1 min away.',walk:'Shops within 4 min.'}},
- {id:'e',name:'Renovated 2-bed, inner courtyard',price:1160,m2:72,x:150,y:160,g:['#d6cde8','#9b8fc0'],s:{quiet:76,safe:78,transit:90,walk:84},
-  d:{quiet:'Bedroom on the inner courtyard: about 52 dB at night.',safe:'Slightly above the city average.',transit:'Metro 4 min on foot.',walk:'Shops within 6 min.'}},
- {id:'f',name:'2-bed near the market',price:1090,m2:66,x:360,y:340,g:['#f3d9a4','#d4a95a'],s:{quiet:62,safe:70,transit:74,walk:93},
-  d:{quiet:'Market deliveries from 6 am: about 57 dB.',safe:'City average.',transit:'Metro 8 min on foot.',walk:'Covered market downstairs.'}},
- {id:'g',name:'Ground-floor 2-bed with patio',price:1140,m2:71,x:560,y:470,g:['#c8dcd5','#83a99c'],s:{quiet:80,safe:64,transit:70,walk:72},
-  d:{quiet:'Small lane, patio side: about 50 dB.',safe:'District below the city average.',transit:'Metro 9 min on foot.',walk:'Shops within 10 min.'}},
- {id:'h',name:'2-bed by the school, family block',price:1199,m2:80,x:252,y:500,g:['#f2cfc4','#c99484'],s:{quiet:72,safe:90,transit:76,walk:78},
-  d:{quiet:'Loud at school hours, quiet at night: about 50 dB.',safe:'The safest district in the sample.',transit:'Metro 8 min on foot.',walk:'School, park and shops within 6 min.'}}];
+ {id:'a',name:'Bright 2-bed above the avenue',price:1180,m2:74,x:520,y:682,db:68,min:4,st:'M Avenida',g:['#f0c9a8','#c98f6b'],s:{quiet:28,safe:74,transit:92,walk:96},
+  d:{quiet:'Bedroom over Avenida del Sol: 68 dB at night, like heavy traffic.',safe:'Centro: about the city average.',transit:'Metro Avenida, 4 min walk.',walk:'Supermarket, pharmacy and bakery within 3 min.'}},
+ {id:'b',name:'Quiet 2-bed on a side street',price:1150,m2:70,x:610,y:318,db:45,min:10,st:'M Olmo',g:['#cfe4c1','#8fb58a'],s:{quiet:91,safe:80,transit:66,walk:82},
+  d:{quiet:'Travesía del Olivo, a lane with no through traffic: 45 dB at night.',safe:'Norte: slightly safer than the city average.',transit:'Metro Olmo, 10 min walk.',walk:'Shops within 7 min on Calle Escuela.'}},
+ {id:'c',name:'Sunny 2-bed facing the park',price:1195,m2:78,x:190,y:1046,db:47,min:13,st:'M Sur',g:['#e9e2a8','#b7c27a'],s:{quiet:84,safe:86,transit:58,walk:70},
+  d:{quiet:'Faces Parque de las Acacias: 47 dB at night, birds at 7 am.',safe:'Las Acacias: one of the safest districts.',transit:'Metro Sur, 13 min walk.',walk:'Supermarket 12 min away.'}},
+ {id:'d',name:'Top-floor 2-bed by the metro',price:1120,m2:68,x:468,y:800,db:59,min:2,st:'M Avenida',g:['#bcd8e8','#7aa3bb'],s:{quiet:55,safe:72,transit:98,walk:90},
+  d:{quiet:'Top floor, one street from the avenue: 59 dB at night.',safe:'Centro: about the city average.',transit:'Metro Avenida, 2 min walk.',walk:'Shops within 4 min.'}},
+ {id:'e',name:'Renovated 2-bed, inner courtyard',price:1160,m2:72,x:226,y:262,db:52,min:3,st:'M Olmo',g:['#d6cde8','#9b8fc0'],s:{quiet:76,safe:78,transit:90,walk:84},
+  d:{quiet:'Bedroom on the inner courtyard, Calle Corta is calm: 52 dB.',safe:'Norte: slightly safer than the city average.',transit:'Metro Olmo, 3 min walk.',walk:'Café and grocer within 5 min.'}},
+ {id:'f',name:'2-bed near the market',price:1090,m2:66,x:250,y:790,db:57,min:7,st:'M Avenida',g:['#f3d9a4','#d4a95a'],s:{quiet:62,safe:70,transit:74,walk:93},
+  d:{quiet:'Market deliveries from 6 am on Calle del Mercado: 57 dB.',safe:'Centro: about the city average.',transit:'Metro Avenida, 7 min walk.',walk:'Covered market downstairs.'}},
+ {id:'g',name:'Ground-floor 2-bed with patio',price:1140,m2:71,x:668,y:1236,db:46,min:8,st:'M Sur',g:['#c8dcd5','#83a99c'],s:{quiet:80,safe:64,transit:70,walk:72},
+  d:{quiet:'Pasaje del Patio, no through traffic: 46 dB.',safe:'Puerta Sur: below the city average.',transit:'Metro Sur, 8 min walk.',walk:'Shops within 10 min.'}},
+ {id:'h',name:'2-bed by the school, family block',price:1199,m2:80,x:372,y:1128,db:50,min:7,st:'M Sur',g:['#f2cfc4','#c99484'],s:{quiet:72,safe:90,transit:76,walk:78},
+  d:{quiet:'Paseo del Parque: 50 dB at night, lively at school hours.',safe:'Las Acacias: the safest district in the sample.',transit:'Metro Sur, 7 min walk.',walk:'School, park and shops within 6 min.'}}];
+const W={w:720,h:1320};
+const STREETS=[
+ {n:'Ronda Norte',db:61,w:22,p:[[0,140],[720,140]],lx:470,ly:131},
+ {n:'Calle Real',db:58,w:22,p:[[0,420],[720,420]],lx:520,ly:411},
+ {n:'Calle del Mercado',db:60,w:22,p:[[0,760],[720,760]],lx:40,ly:751},
+ {n:'Paseo del Parque',db:53,w:22,p:[[0,1060],[720,1060]],lx:470,ly:1051},
+ {n:'Calle del Olmo',db:50,w:20,p:[[150,0],[150,1060]],lx:141,ly:620,r:-90},
+ {n:'Calle Luna',db:52,w:20,p:[[360,0],[360,1320]],lx:351,ly:380,r:-90},
+ {n:'Calle Escuela',db:49,w:20,p:[[560,0],[560,1060]],lx:551,ly:250,r:-90},
+ {n:'Calle Corta',db:47,w:14,p:[[0,250],[360,250]],lx:24,ly:243},
+ {n:'Travesía del Olivo',db:45,w:14,p:[[360,300],[720,300]],lx:575,ly:293},
+ {n:'Pasaje del Patio',db:46,w:14,p:[[690,1060],[690,1320]],lx:681,ly:1300,r:-90},
+ {n:'Avenida del Sol',db:72,w:38,p:[[0,1000],[720,560]],lx:200,ly:868,r:-31.4,big:1}];
+const METROS=[{n:'Olmo',x:300,y:330},{n:'Avenida',x:430,y:737},{n:'Sur',x:560,y:1060}];
+const DISTRICTS=[
+ {n:'Norte',lab:'Safer than average',c:'rgba(105,179,165,.20)',t:'#2a6a5e',poly:'0,0 720,0 720,420 0,420',lx:24,ly:396},
+ {n:'Centro',lab:'City average',c:'rgba(233,195,106,.16)',t:'#80621a',poly:'0,420 720,420 720,940 0,940',lx:470,ly:916},
+ {n:'Las Acacias',lab:'Safest',c:'rgba(42,106,94,.24)',t:'#1f5a4f',poly:'0,940 440,940 440,1320 0,1320',lx:24,ly:964},
+ {n:'Puerta Sur',lab:'Below average',c:'rgba(240,163,122,.26)',t:'#9a4e26',poly:'440,940 720,940 720,1320 440,1320',lx:452,ly:964}];
+const POIS=[['shop',505,640],['phar',548,722],['bake',470,700],['shop',420,830],['cafe',500,860],['mkt',250,742],['shop',300,812],['bake',200,800],
+ ['cafe',250,208],['shop',190,300],['bake',265,370],['phar',600,360],['shop',640,250],['cafe',600,460],['shop',300,1100],['phar',460,1110],['cafe',620,1180],['school',300,1190]];
+const POI_ICON={shop:['#b08419','M-5 -3h10l-1.5 7h-7z M-3 -3v-2a3 3 0 0 1 6 0v2'],phar:['#2f8f5b','M-1.6 -6h3.2v4.4h4.4v3.2h-4.4v4.4h-3.2v-4.4h-4.4v-3.2h4.4z'],bake:['#c96a3a','M-6 2c0-5 12-5 12 0v2h-12z'],cafe:['#7a5a3a','M-5 -4h8v5a4 4 0 0 1-8 0z M3 -2h2a2 2 0 0 1 0 4h-2'],mkt:['#b08419','M-6 -2l2-4h8l2 4z M-5 -2v7h10v-7'],school:['#80621a','M-6 5v-6l6-4 6 4v6z']};
+const noiseCol=db=>db<48?'#3f9d6b':db<52?'#8fbf55':db<56?'#c9c94a':db<60?'#e9b44c':db<65?'#ef8a4c':'#d4483b';
+const noiseWord=db=>db<48?'Very quiet, like a library':db<53?'Quiet residential street':db<58?'Some traffic, normal conversation':db<65?'Busy, windows closed at night':'Loud, like heavy traffic';
 
 const VIEWS=['Search','Priorities','Map','Report','Move Pass'];
-const st={v:0,on:new Set(),persona:null,sel:'e',saved:new Set(),pass:false,savedTab:false};
+const st={tip:null,sheetOpen:false,v:0,on:new Set(),persona:null,sel:'e',saved:new Set(),pass:false,savedTab:false};
 const $=s=>document.querySelector(s);
 const score=f=>{const k=Object.keys(f.s);const w=x=>st.on.has(x)?3:1;return Math.round(k.reduce((a,x)=>a+w(x)*f.s[x],0)/k.reduce((a,x)=>a+w(x),0))};
 const col=n=>n>=82?'var(--hi)':n>=72?'var(--mid)':'var(--lo)';
@@ -305,23 +367,6 @@ const icon=(p,s=24)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" aria-h
 const ring=(n,size=54,w=5)=>{const r=(size-w)/2,c=2*Math.PI*r;return `<span class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#ebe7dc" stroke-width="${w}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col(n)}" stroke-width="${w}" stroke-linecap="round" stroke-dasharray="${c*n/100} ${c}"/></svg><span class="v" style="color:${col(n)}">${n}</span></span>`};
 const thumb=f=>`<span class="thumb" style="background:linear-gradient(150deg,${f.g[0]},${f.g[1]})"><svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true"><rect x="10" y="16" width="22" height="30" fill="rgba(255,255,255,.55)"/><rect x="30" y="8" width="16" height="38" fill="rgba(255,255,255,.35)"/><g fill="rgba(21,39,42,.25)"><rect x="14" y="21" width="5" height="5"/><rect x="23" y="21" width="5" height="5"/><rect x="14" y="30" width="5" height="5"/><rect x="23" y="30" width="5" height="5"/><rect x="34" y="13" width="4" height="4"/><rect x="34" y="22" width="4" height="4"/></g></svg><b>${f.id.toUpperCase()}</b></span>`;
 function toast(t){const s=$('#toastSlot');s.innerHTML=`<div class="toast"><span style="color:var(--lime)">●</span>${t}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>s.innerHTML='',2400)}
-
-function mapSVG(sel){
-  const b=[];for(let r=0;r<6;r++)for(let c=0;c<6;c++){if(r>=4&&c<=1)continue;b.push(`<rect class="m-block" x="${24+c*102}" y="${24+r*88}" width="84" height="70" rx="8"/>`)}
-  const shops=[[210,300],[262,222],[330,330],[400,290],[366,196],[520,336],[240,120],[300,420],[372,356]].map(([x,y])=>`<circle class="m-shop" cx="${x}" cy="${y}" r="8"/>`).join('');
-  const best=ranked()[0].id;
-  const pins=FLATS.map(f=>`<g class="m-pin${f.id===best?' best':''}" data-flat="${f.id}" transform="translate(${f.x} ${f.y})">${f.id===best?'<circle class="halo" r="20"/>':''}<circle r="${sel===f.id?26:21}"/><text y="6">${f.id.toUpperCase()}</text></g>`).join('');
-  return `<svg viewBox="0 30 640 520" preserveAspectRatio="xMidYMid slice" class="${[...st.on].map(k=>'show-'+k).join(' ')}" aria-label="Sample neighbourhood map">
-  <rect class="m-ground" width="640" height="560"/><rect class="m-park" x="24" y="376" width="186" height="160" rx="12"/>
-  <g class="layer l-safe"><rect class="m-safe" width="330" height="560"/><rect class="m-safe-low" x="470" y="400" width="170" height="160"/></g>
-  ${b.join('')}
-  <g class="layer l-quiet"><path class="m-noise-w" d="M-20 470 L660 60"/><path class="m-noise" d="M-20 470 L660 60"/></g>
-  <path class="m-avenue" d="M-20 470 L660 60"/>
-  <g class="layer l-transit"><circle class="m-ring" cx="430" cy="400" r="120"/><circle class="m-ring" cx="225" cy="215" r="120"/></g>
-  <g class="m-sym"><g transform="translate(430 400)"><rect x="-15" y="-15" width="30" height="30" rx="8"/><text y="6">M</text></g><g transform="translate(225 215)"><rect x="-15" y="-15" width="30" height="30" rx="8"/><text y="6">M</text></g></g>
-  <g class="m-sym s"><g transform="translate(300 528)"><rect x="-15" y="-15" width="30" height="30" rx="8"/><text y="6">S</text></g></g>
-  <g class="layer l-walk">${shops}</g>${pins}</svg>`;
-}
 
 const V=[];
 V[0]=()=>`<div class="stack">
@@ -344,22 +389,13 @@ V[1]=()=>`<div class="stack">
   <div class="pad prio-list">${PRIOS.map(p=>`<button class="prio" data-prio="${p.key}" aria-pressed="${st.on.has(p.key)}"><span class="pi" style="background:${p.bg}">${icon(p)}</span><span class="tx"><b>${p.label}${st.on.has(p.key)?'<span class="x3">×3</span>':''}</b><small>${p.hint}</small></span><span class="switch"></span></button>`).join('')}</div>
   <div class="pad"><button class="cta" data-go="2">Show my ranking →</button></div>
 </div>`;
-V[2]=()=>{const r=ranked();return `
-  <div class="mapcard" style="margin-top:-62px;height:390px;padding-top:0">${mapSVG()}
-    <div class="searchpill" style="top:58px"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#15272a" stroke-width="2.4" fill="none"/><path d="M16 16l4 4" stroke="#15272a" stroke-width="2.4" stroke-linecap="round"/></svg> Madrid · 2 bed · ≤ €1,200<span>8 flats</span></div>
-    <div class="chips">${PRIOS.map(p=>`<button class="chip" data-prio="${p.key}" aria-pressed="${st.on.has(p.key)}">${p.label}</button>`).join('')}</div>
-  </div>
-  <div class="sheet"><div class="grab"></div>
-    <div class="sheet-head"><b>Best for you</b><span>${st.on.size?[...st.on].map(k=>PRIOS.find(p=>p.key===k).label).join(' + '):'All signals equal'}</span></div>
-    <div class="cards">${r.map((f,i)=>`<button class="card${i===0?' best':''}" data-flat="${f.id}">${i===0?'<span class="bestflag">Top match</span>':''}${thumb(f)}<span><span class="nm">${f.name}</span><span class="mt">${eur(f.price)} / month · ${f.m2} m²</span><span class="bars">${PRIOS.map(p=>`<i style="--v:${f.s[p.key]}%;--c:${p.col}"></i>`).join('')}</span></span>${ring(score(f))}</button>`).join('')}</div>
-  </div>`};
 V[3]=()=>{const f=FLATS.find(x=>x.id===st.sel),n=score(f),rank=ranked().findIndex(x=>x.id===f.id)+1,sv=st.saved.has(f.id);
   const src={quiet:'City noise map · building facade',safe:'Police data · district level',transit:'Transit stops + walking route',walk:'Shops and services · 10 min walk'};
   return `<div class="rep-hero"><div class="ph" style="background:linear-gradient(150deg,${f.g[0]},${f.g[1]})"><svg width="390" height="250" viewBox="0 0 390 250" aria-hidden="true"><rect x="40" y="70" width="120" height="180" fill="rgba(255,255,255,.45)"/><rect x="170" y="30" width="110" height="220" fill="rgba(255,255,255,.3)"/><rect x="290" y="95" width="80" height="155" fill="rgba(255,255,255,.4)"/><g fill="rgba(21,39,42,.18)">${Array.from({length:12},(_,i)=>`<rect x="${55+(i%4)*24}" y="${90+Math.floor(i/4)*36}" width="14" height="20"/>`).join('')}${Array.from({length:12},(_,i)=>`<rect x="${185+(i%3)*30}" y="${50+Math.floor(i/3)*40}" width="16" height="24"/>`).join('')}</g></svg></div><div class="shade"></div>
     <div class="rep-top"><button class="round" data-go="2" aria-label="Back to the map"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M11 3L5 9l6 6" stroke="#15272a" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="round${sv?' on':''}" data-save="${f.id}" aria-label="Save">${sv?'♥':'♡'}</button></div>
     <div class="rep-title"><span class="kicker">Street report · flat ${f.id.toUpperCase()}</span><h2>${f.name}</h2><p>${eur(f.price)} / month · ${f.m2} m²</p></div></div>
   <div class="scorebar">${ring(n,58,6).replace('color:','color:#fff;--x:')}<span><b>#${rank} of 8 for you</b><small>${st.on.size?'Weighted by your priorities':'All four signals equal'}</small></span></div>
-  <div class="pad signals" style="margin-top:14px">${PRIOS.map((p,i)=>{const lk=!st.pass&&i>=2,v=f.s[p.key];return `<div class="sig${lk?' locked':''}"><div class="body"><div class="sig-h"><span class="pi" style="background:${p.bg}">${icon(p,20)}</span><b>${p.label}</b>${st.on.has(p.key)?'<span class="you">yours</span>':''}<span class="n" style="color:${col(v)}">${v}</span></div><div class="meter" style="margin-top:8px"><i style="--v:${v}%;background:${p.col}"></i></div><p style="margin-top:8px">${f.d[p.key]}</p><span class="src">${src[p.key]}</span></div>${lk?'<div class="lock"><span><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" fill="#d4f06a"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#d4f06a" stroke-width="2.4" fill="none"/></svg> Move Pass</span></div>':''}</div>`}).join('')}
+  <div class="pad signals" style="margin-top:14px">${PRIOS.map((p,i)=>{const lk=!st.pass&&i>=2,v=f.s[p.key];return `<div class="sig${lk?' locked':''}"><div class="body"><div class="sig-h"><span class="pi" style="background:${p.bg}">${icon(p,20)}</span><b>${p.label}</b>${st.on.has(p.key)?'<span class="you">yours</span>':''}<span class="n" style="color:${col(v)}">${v}</span></div><div class="meter" style="margin-top:8px"><i style="--v:${v}%;background:${p.col}"></i></div>${p.key==='quiet'&&!lk?dbScale(f.db):''}<p style="margin-top:8px">${f.d[p.key]}</p><span class="src">${src[p.key]}</span></div>${lk?'<div class="lock"><span><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" fill="#d4f06a"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#d4f06a" stroke-width="2.4" fill="none"/></svg> Move Pass</span></div>':''}</div>`}).join('')}
     <div class="limit"><span style="font-weight:700">!</span><span>Safety data in Spain is published by district, not by street. We show it at that level and say so.</span></div></div>
   ${st.pass?'':`<div class="sticky"><button class="cta lime" data-go="4">Unlock every layer · €9.99</button></div>`}`};
 V[4]=()=>`<div class="stack">
@@ -370,6 +406,95 @@ V[4]=()=>`<div class="stack">
   <div class="pad">${st.pass?`<div class="done"><b>Move Pass active</b><span class="sub">Every layer is unlocked.</span><button class="cta" data-go="3">Back to the street report</button></div>`:`<button class="cta lime" data-buy>Unlock · €9.99</button>`}</div>
   <p class="fine pad">Demo only: nothing is charged. Under 1 % of one month's rent. Prices are tested in the pilot.</p>
 </div>`;
+function worldSVG(){
+  const xs=[0,150,360,560,720],ys=[0,140,420,760,1060,1320],bl=[];
+  for(let i=0;i<xs.length-1;i++)for(let j=0;j<ys.length-1;j++){
+    const x0=xs[i]+14,x1=xs[i+1]-14,y0=ys[j]+14,y1=ys[j+1]-14;
+    if(j===4&&i<=1)continue; // park
+    // split big blocks with the small streets
+    const cuts=[];if(j===0&&i<=1)cuts.push(250);if(j===1&&i<=1)cuts.push(250);if(j===1&&i>=2)cuts.push(300);
+    let ys2=[y0];cuts.forEach(c=>{if(c>y0&&c<y1){ys2.push(c-10,c+10)}});ys2.push(y1);
+    for(let k=0;k<ys2.length;k+=2){let xa=x0,xb=x1;if(j===4&&i===3){xb=Math.min(x1,676)}
+      bl.push(`<rect class="w-block" x="${xa}" y="${ys2[k]}" width="${xb-xa}" height="${ys2[k+1]-ys2[k]}" rx="10"/>`)}
+  }
+  const path=s=>'M'+s.p.map(q=>q.join(' ')).join(' L');
+  const trees=[[60,1120],[120,1180],[200,1130],[90,1260],[250,1250],[300,1150],[40,1200],[180,1220]].map(([x,y])=>`<circle class="w-park-tree" cx="${x}" cy="${y}" r="16"/>`).join('');
+  const isos=METROS.map(m=>`<circle class="iso10" cx="${m.x}" cy="${m.y}" r="300"/><circle class="iso5" cx="${m.x}" cy="${m.y}" r="150"/><text class="iso-label" x="${m.x}" y="${m.y-158}" text-anchor="middle">5 min</text><text class="iso-label" x="${m.x}" y="${m.y-308}" text-anchor="middle">10 min</text>`).join('');
+  const metros=METROS.map(m=>`<g transform="translate(${m.x} ${m.y})"><rect x="-17" y="-17" width="34" height="34" rx="9" fill="#2a6a5e" stroke="#fff" stroke-width="3"/><text y="7" text-anchor="middle" style="font:800 19px var(--font);fill:#fff">M</text><text y="36" text-anchor="middle" class="w-label" style="fill:#2a6a5e">${m.n}</text></g>`).join('');
+  const pois=POIS.map(([k,x,y])=>{const [c,d]=POI_ICON[k];return `<g transform="translate(${x} ${y})"><circle r="13" fill="${c}" stroke="#fff" stroke-width="2.5"/><path d="${d}" fill="${k==='shop'||k==='cafe'?'none':'#fff'}" stroke="#fff" stroke-width="${k==='shop'||k==='cafe'?1.8:0}" stroke-linejoin="round"/></g>`}).join('');
+  return `<defs><filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter></defs>
+  <rect class="w-ground" x="-400" y="-400" width="${W.w+800}" height="${W.h+800}"/>
+  <g class="layer l-safe">${DISTRICTS.map(d=>`<polygon points="${d.poly}" fill="${d.c}"/>`).join('')}</g>
+  <rect class="w-park" x="14" y="1074" width="332" height="246" rx="14"/>${trees}<text class="w-park-label" x="40" y="1300">Parque de las Acacias</text>
+  ${bl.join('')}
+  <g class="layer l-transit">${isos}</g>
+  <g class="layer l-quiet">${STREETS.map(s=>s.db>=55?`<path class="glow" d="${path(s)}" stroke="${noiseCol(s.db)}" stroke-width="${s.w*4+(s.db-55)*6}"/>`:'').join('')}</g>
+  ${STREETS.map(s=>`<path class="w-street-casing" d="${path(s)}" stroke-width="${s.w+5}"/>`).join('')}
+  ${STREETS.map(s=>`<path class="w-street" data-street="${s.n}" d="${path(s)}" stroke-width="${s.w}" style="${st.on.has('quiet')?`stroke:${noiseCol(s.db)}`:''}"/>`).join('')}
+  ${STREETS.map(s=>`<path class="w-hit" data-street="${s.n}" d="${path(s)}"/>`).join('')}
+  ${STREETS.map(s=>`<text class="w-label${s.big?' big':''}" x="${s.lx}" y="${s.ly}" ${s.r?`transform="rotate(${s.r} ${s.lx} ${s.ly})"`:''}>${s.n}${st.on.has('quiet')?` · ${s.db} dB`:''}</text>`).join('')}
+  <g class="layer l-safe">${DISTRICTS.map(d=>`<text class="dist-label" x="${d.lx}" y="${d.ly}" fill="${d.t}">${d.n} · ${d.lab}</text>`).join('')}</g>
+  <g class="layer l-walk">${pois}</g>
+  ${metros}
+  <g id="pins"></g>`;
+}
+function pinsSVG(k){
+  const best=ranked()[0].id;
+  return FLATS.map(f=>{const n=score(f),sel=f.id===st.sel;return `<g class="m-pin${f.id===best?' best':''}${sel?' sel':''}" data-flat="${f.id}" transform="translate(${f.x} ${f.y}) scale(${k*(sel?0.95:0.8)})"><g class="pi-in">
+    <path class="pbody" d="M0 0 C-4 -9 -17 -15 -17 -28 A17 17 0 1 1 17 -28 C17 -15 4 -9 0 0z"/><text y="-23">${f.id.toUpperCase()}</text>
+    <circle class="sbadge" cx="15" cy="-42" r="11" fill="${col(n).replace('var(--hi)','#4f7f12').replace('var(--mid)','#b08419').replace('var(--lo)','#c96a3a')}"/><text class="stext" x="15" y="-38.5">${n}</text></g></g>`}).join('');
+}
+const legendHTML=()=>{const o=[];
+  if(st.on.has('quiet'))o.push(`<div class="lg"><b>Night noise on each street</b><div class="db-bar"></div><div class="db-scale"><span>45 dB quiet</span><span>55</span><span>65</span><span>75 loud</span></div></div>`);
+  if(st.on.has('transit'))o.push(`<div class="lg"><b>Walk to the metro</b><div class="row"><span><i class="sw" style="background:rgba(42,106,94,.35)"></i>5 min</span><span><i class="sw" style="border:2px dashed #69b3a5"></i>10 min</span></div></div>`);
+  if(st.on.has('safe'))o.push(`<div class="lg"><b>Safety by district</b><div class="row"><span><i class="sw" style="background:rgba(42,106,94,.45)"></i>Safest</span><span><i class="sw" style="background:rgba(233,195,106,.5)"></i>Average</span><span><i class="sw" style="background:rgba(240,163,122,.6)"></i>Below</span></div></div>`);
+  if(st.on.has('walk'))o.push(`<div class="lg"><b>Within a 10-min walk</b><div class="row"><span><i class="sw" style="background:#b08419"></i>Shops</span><span><i class="sw" style="background:#2f8f5b"></i>Pharmacy</span><span><i class="sw" style="background:#7a5a3a"></i>Café</span></div></div>`);
+  return o.slice(-2).join('')};
+
+V[2]=()=>{const r=ranked(),f=FLATS.find(x=>x.id===st.sel)||r[0];
+  return `<div class="map" id="map"><svg id="msvg" class="${[...st.on].map(k=>'show-'+k).join(' ')}" aria-label="Neighbourhood map, drag to move, pinch to zoom">${worldSVG()}</svg></div>
+  <div class="searchpill"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" stroke="#15272a" stroke-width="2.4" fill="none"/><path d="M16 16l4 4" stroke="#15272a" stroke-width="2.4" stroke-linecap="round"/></svg> Madrid · 2 bed · ≤ €1,200<span>8 flats</span></div>
+  <div class="chips">${PRIOS.map(p=>`<button class="chip" data-prio="${p.key}" aria-pressed="${st.on.has(p.key)}"><i style="background:${p.bg}">${icon(p,14)}</i>${p.label}</button>`).join('')}</div>
+  <div class="zoom"><button data-zoom="in" aria-label="Zoom in">+</button><button data-zoom="out" aria-label="Zoom out">−</button><button data-zoom="fit" aria-label="Show the whole area"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="#15272a" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></button></div>
+  ${st.tip?`<div class="street-tip"><span>${st.tip.n}</span><span class="db" style="color:${noiseCol(st.tip.db)}">${st.tip.db} dB at night</span><b>${noiseWord(st.tip.db)}</b></div>`:(st.on.size?'':`<div class="hint-chip">Drag the map · tap a street or a pin</div>`)}
+  <div class="legend" style="${st.sheetOpen?'display:none':''}">${legendHTML()}</div>
+  <div class="sheet${st.sheetOpen?' open':''}"><div class="grab"></div>
+    <div class="sheet-head"><b>${st.sheetOpen?'Ranked for you':(f.id===r[0].id?'Top match for you':'Selected flat')}<small>${st.on.size?[...st.on].map(k=>PRIOS.find(p=>p.key===k).label).join(' + '):'All four signals count the same'}</small></b><button class="sheet-toggle" data-sheet>${st.sheetOpen?'Map ▾':'All 8 ▴'}</button></div>
+    ${st.sheetOpen?`<div class="cards">${r.map((x,i)=>cardHTML(x,i===0)).join('')}</div>`:`<div class="preview cards">${cardHTML(f,f.id===r[0].id)}<button class="cta" data-flat-open="${f.id}">Street report →</button></div>`}
+  </div>`};
+function cardHTML(f,best){return `<button class="card${best?' best':''}${f.id===st.sel?' sel':''}" data-pick="${f.id}">${best?'<span class="bestflag">Top match</span>':''}${thumb(f)}<span><span class="nm">${f.name}</span><span class="mt">${eur(f.price)} / month · ${f.m2} m² · ${f.min} min to ${f.st}</span><span class="bars">${PRIOS.map(p=>`<i style="--v:${f.s[p.key]}%;--c:${p.col}"></i>`).join('')}</span></span>${ring(score(f))}</button>`}
+
+/* pan and zoom */
+const MV={x:0,y:0,w:W.w,h:W.h,init:false};
+function mapEl(){return document.getElementById('map')}
+function applyVB(){const el=mapEl(),svg=document.getElementById('msvg');if(!el||!svg)return;const r=el.getBoundingClientRect();if(!r.width)return;
+  MV.h=MV.w*r.height/r.width;
+  const pad=120;MV.w=Math.max(220,Math.min(W.w+pad*2,MV.w));MV.h=MV.w*r.height/r.width;
+  MV.x=Math.max(-pad,Math.min(W.w+pad-MV.w,MV.x));MV.y=Math.max(-pad-140,Math.min(W.h+pad+200-MV.h,MV.y));
+  svg.setAttribute('viewBox',`${MV.x} ${MV.y} ${MV.w} ${MV.h}`);
+  document.getElementById('pins').innerHTML=pinsSVG(MV.w/r.width);}
+function fitMap(){const el=mapEl();if(!el)return;const r=el.getBoundingClientRect();if(!r.width)return;
+  const k=(W.w+30)/r.width;MV.w=r.width*k;MV.x=W.w/2-MV.w/2;MV.y=-(r.height<700?120:165)*k;applyVB();}
+function zoomAt(f,cx,cy){const el=mapEl(),r=el.getBoundingClientRect();const wx=MV.x+(cx-r.left)/r.width*MV.w,wy=MV.y+(cy-r.top)/r.height*MV.h;
+  MV.w*=f;const nh=MV.w*r.height/r.width;MV.x=wx-(cx-r.left)/r.width*MV.w;MV.y=wy-(cy-r.top)/r.height*nh;applyVB();}
+function centerOn(f){const el=mapEl();if(!el)return;const r=el.getBoundingClientRect();MV.x=f.x-MV.w/2;MV.y=f.y-MV.h*0.38;applyVB();}
+function initMap(){const el=mapEl();if(!el)return;if(!MV.init){fitMap();MV.init=true}else applyVB();
+  const pts=new Map();let moved=0,last=null,pinch=null;
+  el.onpointerdown=e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=0;last={x:e.clientX,y:e.clientY};
+    if(pts.size===2){const [a,b]=[...pts.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y)}};el.classList.add('dragging')};
+  el.onpointermove=e=>{if(!pts.has(e.pointerId))return;const r=el.getBoundingClientRect();pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2&&pinch){const [a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);zoomAt(pinch.d/d,(a.x+b.x)/2,(a.y+b.y)/2);pinch.d=d;moved=99;return}
+    const dx=e.clientX-last.x,dy=e.clientY-last.y;moved+=Math.abs(dx)+Math.abs(dy);last={x:e.clientX,y:e.clientY};
+    MV.x-=dx*MV.w/r.width;MV.y-=dy*MV.h/r.height;applyVB()};
+  el.onpointerup=el.onpointercancel=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(!pts.size)el.classList.remove('dragging');
+    if(e.type==='pointerup'&&moved<8&&!pts.size){el.releasePointerCapture?.(e.pointerId);const t=document.elementFromPoint(e.clientX,e.clientY);const pin=t&&t.closest('[data-flat]'),stEl=t&&t.closest('[data-street]');
+      if(pin){st.sel=pin.dataset.flat;st.tip=null;st.sheetOpen=false;renderKeep();const g=document.querySelector(`.m-pin[data-flat="${st.sel}"]`);g&&g.classList.add('pop')}
+      else if(stEl){const s=STREETS.find(x=>x.n===stEl.dataset.street);st.tip=st.tip&&st.tip.n===s.n?null:s;renderKeep()}
+      else if(st.tip){st.tip=null;renderKeep()}}};
+  el.onwheel=e=>{e.preventDefault();zoomAt(Math.exp(e.deltaY*0.0015),e.clientX,e.clientY)};
+}
+
+function dbScale(db){const pc=(db-35)/45*100;return `<div style="margin-top:10px;display:grid;gap:4px"><div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,#3f9d6b,#a8c94b 30%,#e9c36a 50%,#ef8a4c 72%,#d4483b)"><span style="position:absolute;left:calc(${pc}% - 7px);top:-4px;width:14px;height:18px;border-radius:5px;background:#15272a;border:2px solid #fff"></span></div><div style="display:flex;justify-content:space-between;font:500 9.5px var(--mono);color:var(--faint)"><span>40 library</span><span>50 quiet street</span><span>60 talking</span><span>70 traffic</span></div></div>`}
 function savedView(){const fl=FLATS.filter(f=>st.saved.has(f.id));return fl.length?`<div class="pad stack"><span class="kicker">Saved</span><h2 class="title">Your shortlist</h2><div class="cards">${fl.map(f=>`<button class="card" data-flat="${f.id}">${thumb(f)}<span><span class="nm">${f.name}</span><span class="mt">${eur(f.price)} / month</span></span>${ring(score(f))}</button>`).join('')}</div></div>`:`<div class="empty"><span style="font-size:34px">♡</span><b style="color:var(--ink)">No saved flats yet</b><span>Tap the heart on a street report to keep it here.</span><button class="cta" data-go="2" style="width:auto;padding:12px 18px">Open the map</button></div>`}
 
 const TABS=[{l:'Search',v:0,i:'<circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'},
@@ -380,23 +505,30 @@ const TABS=[{l:'Search',v:0,i:'<circle cx="11" cy="11" r="6.5" stroke="currentCo
 
 function render(){
   const vs=$('#views');
-  vs.innerHTML=V.map((f,i)=>`<section class="view" data-i="${i}" ${i===st.v&&!st.savedTab?'':'aria-hidden="true"'}>${st.savedTab&&i===st.v?savedView():f()}</section>`).join('');
+  vs.innerHTML=V.map((f,i)=>`<section class="view${i===2&&!(st.savedTab&&i===st.v)?' mapview':''}" data-i="${i}" ${i===st.v&&!st.savedTab?'':'aria-hidden="true"'}>${st.savedTab&&i===st.v?savedView():f()}</section>`).join('');
   vs.style.transform=`translateX(${-st.v*100}%)`;
   vs.querySelectorAll('.view').forEach(el=>el.style.transform=`translateX(0)`);
   const cur=st.savedTab?'saved':(st.v===3?2:st.v);
   $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab" data-tab="${t.v}" ${String(t.v)===String(cur)?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${t.i}</svg>${t.l}${t.v==='saved'&&st.saved.size?` (${st.saved.size})`:''}<span class="dot"></span></button>`).join('');
   $('#status').classList.toggle('dark',st.v===3&&!st.savedTab);
   $('#flow').innerHTML=VIEWS.map((n,i)=>`<button data-go="${i}" ${i===st.v&&!st.savedTab?'aria-current="step"':''}><b>${i+1}</b>${n}</button>`).join('');
+  if(st.v===2&&!st.savedTab)requestAnimationFrame(initMap);
 }
+function renderKeep(){const vw=document.querySelectorAll('.view')[st.v];const y=vw?vw.scrollTop:0;render();const v2=document.querySelectorAll('.view')[st.v];if(v2)v2.scrollTop=y;if(st.v===2&&!st.savedTab)initMap()}
 function go(i){st.savedTab=false;st.v=Math.max(0,Math.min(4,i));render();document.querySelectorAll('.view')[st.v].scrollTop=0}
-function toggle(k){st.persona=null;st.on.has(k)?st.on.delete(k):st.on.add(k);const y=document.querySelectorAll('.view')[st.v].scrollTop;render();document.querySelectorAll('.view')[st.v].scrollTop=y}
+function toggle(k){st.persona=null;st.tip=null;st.on.has(k)?st.on.delete(k):st.on.add(k);renderKeep()}
 
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-go],[data-prio],[data-persona],[data-flat],[data-save],[data-buy],[data-tab]');if(!t)return;
+  if(e.target.closest('#map'))return;
+  const t=e.target.closest('[data-go],[data-prio],[data-persona],[data-flat],[data-save],[data-buy],[data-tab],[data-zoom],[data-sheet],[data-pick],[data-flat-open]');if(!t)return;
+  if(t.dataset.zoom){const el=mapEl(),r=el.getBoundingClientRect();if(t.dataset.zoom==='fit')return fitMap();return zoomAt(t.dataset.zoom==='in'?0.7:1.43,r.left+r.width/2,r.top+r.height*0.4)}
+  if(t.dataset.sheet!==undefined){st.sheetOpen=!st.sheetOpen;return renderKeep()}
+  if(t.dataset.pick){st.sel=t.dataset.pick;st.sheetOpen=false;st.tip=null;renderKeep();const f=FLATS.find(x=>x.id===st.sel);return centerOn(f)}
+  if(t.dataset.flatOpen){st.sel=t.dataset.flatOpen;return go(3)}
   if(t.dataset.tab!==undefined){if(t.dataset.tab==='saved'){st.savedTab=true;st.v=st.v;render();return}return go(+t.dataset.tab)}
   if(t.dataset.go!==undefined)return go(+t.dataset.go);
   if(t.dataset.prio)return toggle(t.dataset.prio);
-  if(t.dataset.persona){const p=PERSONAS.find(x=>x.id===t.dataset.persona);st.persona=p.id;st.on=new Set(p.on);render();return toast(`${p.name}: ${p.on.map(k=>PRIOS.find(x=>x.key===k).label).join(' + ')}`)}
+  if(t.dataset.persona){const p=PERSONAS.find(x=>x.id===t.dataset.persona);st.persona=p.id;st.on=new Set(p.on);renderKeep();return toast(`${p.name}: ${p.on.map(k=>PRIOS.find(x=>x.key===k).label).join(' + ')}`)}
   if(t.dataset.flat){st.sel=t.dataset.flat;return go(3)}
   if(t.dataset.save){const id=t.dataset.save;st.saved.has(id)?st.saved.delete(id):st.saved.add(id);render();return toast(st.saved.has(id)?'Saved to your shortlist':'Removed from your shortlist')}
   if(t.dataset.buy!==undefined){st.pass=true;go(3);return toast('Move Pass unlocked · demo, nothing charged')}
@@ -404,13 +536,13 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{
   const k=e.key;
   if(k>='1'&&k<='4'){toggle(PRIOS[+k-1].key);return}
-  if(k==='r'||k==='R'){st.on.clear();st.persona=null;render();return}
+  if(k==='r'||k==='R'){st.on.clear();st.persona=null;st.tip=null;renderKeep();return}
   if(k==='ArrowRight'){e.preventDefault();go(st.v+1)}
   if(k==='ArrowLeft'){e.preventDefault();go(st.v-1)}
 });
 function fit(){const pw=$('#pw');if(innerWidth<=500){pw.style.removeProperty('--k');return}
   const k=Math.min(1,(innerHeight-40)/864,(innerWidth-40)/410);pw.style.setProperty('--k',k);pw.style.setProperty('--pw',410*k+'px');pw.style.setProperty('--ph',864*k+'px');$('#phone').style.setProperty('--k',k)}
-addEventListener('resize',fit);fit();render();
+addEventListener('resize',()=>{fit();if(st.v===2)applyVB()});fit();render();
 </script>
 
 </body></html>
