@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>UrbanLens Logo Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one dark street-map stage, the logo animates in the centre and loops; small controls underneath. Single dark look by choice (brand night teal). */
+:root{
+  --night:#15272a; --night-2:#1e3437; --line:#2e4a4d;
+  --lime:#d4f06a; --peach:#f0a37a; --cream:#f3f1ea; --muted:#a9bab6;
+  --block:#2e4a4d; --stage-bg:#15272a; --word:#f3f1ea; --accent:#d4f06a;
+  --font:'Work Sans',system-ui,-apple-system,sans-serif; --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+.light{--stage-bg:#f3f1ea; --word:#15272a; --accent:#4f7f12; --muted:#5d6b69; --line:#e2ded3}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--cream);font-family:var(--font);display:grid;place-items:center;padding-inline:16px;padding-block:24px}
+.wrap{width:min(960px,100%);display:grid;gap:18px}
+.stage{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:22px;overflow:hidden;background:var(--stage-bg);display:grid;place-items:center;transition:background .5s;
+  background-image:repeating-linear-gradient(0deg,transparent 0 58px,color-mix(in srgb,var(--line) 45%,transparent) 58px 60px),repeating-linear-gradient(90deg,transparent 0 70px,color-mix(in srgb,var(--line) 45%,transparent) 70px 72px)}
+.logo{display:flex;align-items:center;gap:clamp(10px,2.4vw,26px);transform:translateX(0)}
+.lens{width:clamp(70px,15vw,150px);height:auto;overflow:visible;flex:none}
+.word{font-weight:600;font-size:clamp(34px,8.4vw,84px);letter-spacing:-.045em;line-height:1;color:var(--word);display:flex;white-space:nowrap}
+.word span{display:inline-block;transform-origin:50% 90%}
+.word .l{color:var(--accent)}
+.tag{position:absolute;left:0;right:0;bottom:12%;text-align:center;font:500 clamp(11px,1.6vw,15px) var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+.controls button{font:500 13px var(--font);color:var(--cream);background:var(--night-2);border:1px solid #2e4a4d;border-radius:999px;padding:9px 16px;cursor:pointer}
+.controls button[aria-pressed="true"]{background:var(--lime);color:var(--night);border-color:var(--lime)}
+.controls button:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.hint{font-size:12px;color:#8aa09b;text-align:center}
+.embed body{padding:0;place-items:stretch}.embed .wrap{width:100%;height:100%;gap:0}.embed .stage{aspect-ratio:auto;width:100%;height:100%;border-radius:0}.embed .controls,.embed .hint{display:none}.embed body{background:#ffffff}.embed .stage.light{--stage-bg:#ffffff;--line:#e1e7e1;--word:#15272a;--accent:#4a7314;--muted:#55625f}
+</style>
+</head><body>
+
+<div class="wrap">
+  <div class="stage" id="stage" aria-label="UrbanLens logo animation">
+    <div class="logo" id="logo">
+      <svg class="lens" id="lens" viewBox="0 0 80 80" aria-hidden="true">
+        <defs><clipPath id="glass"><circle cx="40" cy="40" r="30"/></clipPath></defs>
+        <circle id="ring" cx="40" cy="40" r="38" fill="#d4f06a"/>
+        <g clip-path="url(#glass)">
+          <circle id="disc" cx="40" cy="40" r="30" fill="#15272a"/>
+          <g id="blocks" fill="#2e4a4d">
+            <rect x="13" y="13" width="14" height="12" rx="2"/><rect x="31" y="13" width="14" height="12" rx="2"/><rect x="49" y="13" width="14" height="12" rx="2"/>
+            <rect x="13" y="29" width="14" height="12" rx="2"/><rect x="49" y="29" width="14" height="12" rx="2"/>
+            <rect x="13" y="45" width="14" height="12" rx="2"/><rect x="31" y="45" width="14" height="12" rx="2"/><rect x="49" y="45" width="14" height="12" rx="2"/>
+            <rect x="31" y="61" width="14" height="12" rx="2"/>
+          </g>
+          <path id="avenue" d="M4 59 C24 54 50 50 76 41" stroke="#f0a37a" stroke-width="6" fill="none" pathLength="100"/>
+          <circle id="ripple" cx="38" cy="35" r="7" fill="none" stroke="#d4f06a" stroke-width="1.5"/>
+          <circle id="dot" cx="38" cy="35" r="4.5" fill="#d4f06a"/>
+          <path id="glint" d="M20 22 A24 24 0 0 1 31 14" stroke="#f3f1ea" stroke-width="2.5" fill="none" stroke-linecap="round" pathLength="100"/>
+        </g>
+      </svg>
+      <div class="word" id="word" aria-label="UrbanLens"></div>
+    </div>
+    <div class="tag" id="tag">Find the home · Know the street</div>
+  </div>
+  <div class="controls">
+    <button id="replay">Replay</button>
+    <button id="loop" aria-pressed="true">Loop</button>
+    <button id="bg" aria-pressed="false">Light background</button>
+  </div>
+  <p class="hint">Click the stage to replay · Space pauses</p>
+</div>
+
+<script>
+if(/[?&]embed/.test(location.search))document.documentElement.classList.add('embed');
+const $=id=>document.getElementById(id);
+const word=$('word');
+'UrbanLens'.split('').forEach((c,i)=>{const s=document.createElement('span');s.textContent=c;if(i>=5)s.className='l';s.setAttribute('aria-hidden','true');word.appendChild(s)});
+const letters=[...word.children], blocks=[...$('blocks').children];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const spring='cubic-bezier(.34,1.56,.64,1)', out='cubic-bezier(.22,1,.36,1)', inn='cubic-bezier(.55,0,.75,.3)';
+let anims=[], loopOn=true, timer=0, paused=false;
+
+function A(el,kf,opt){const a=el.animate(kf,{fill:'both',...opt});anims.push(a);return a}
+function clear(){anims.forEach(a=>a.cancel());anims=[];clearTimeout(timer)}
+const T=1;
+
+function play(){
+  clear();paused=false;
+  if(reduce){return}
+  const ring=$('ring'),disc=$('disc'),av=$('avenue'),dot=$('dot'),rip=$('ripple'),gl=$('glint'),lens=$('lens'),logo=$('logo'),tag=$('tag');
+  [ring,disc,dot,rip].forEach(e=>e.style.transformOrigin='40px 40px');
+  dot.style.transformOrigin='38px 35px';rip.style.transformOrigin='38px 35px';
+  blocks.forEach(b=>{b.style.transformBox='fill-box';b.style.transformOrigin='center'});
+  const wordW=word.getBoundingClientRect().width, gap=parseFloat(getComputedStyle(logo).gap)||0;
+  const shift=(wordW+gap)/2;
+  // 1 lens pops in the middle of the stage, alone
+  A(logo,[{transform:`translateX(${shift}px)`},{transform:`translateX(${shift}px)`,offset:.32},{transform:'translateX(0)'}],{duration:2600*T,easing:out});
+  A(lens,[{transform:'scale(0) rotate(-120deg)'},{transform:'scale(1.18) rotate(8deg)',offset:.7},{transform:'scale(1) rotate(0)'}],{duration:700*T,easing:out});
+  A(disc,[{transform:'scale(0)'},{transform:'scale(1)'}],{duration:450*T,delay:220*T,easing:out});
+  blocks.forEach((b,i)=>A(b,[{transform:'scale(0)',opacity:0},{transform:'scale(1.25)',opacity:1,offset:.6},{transform:'scale(1)',opacity:1}],{duration:380*T,delay:(420+i*45)*T,easing:out}));
+  A(av,[{strokeDasharray:'100 100',strokeDashoffset:100},{strokeDasharray:'100 100',strokeDashoffset:0}],{duration:520*T,delay:820*T,easing:out});
+  A(dot,[{transform:'translateY(-30px) scale(.6)',opacity:0},{transform:'translateY(0) scale(1.3)',opacity:1,offset:.55},{transform:'scale(.9)',offset:.78},{transform:'scale(1)',opacity:1}],{duration:560*T,delay:1180*T,easing:out});
+  A(rip,[{transform:'scale(.6)',opacity:0},{transform:'scale(.7)',opacity:.9,offset:.1},{transform:'scale(2.6)',opacity:0}],{duration:1100*T,delay:1500*T,easing:out,iterations:2});
+  A(gl,[{strokeDasharray:'100 100',strokeDashoffset:100,opacity:0},{strokeDasharray:'100 100',strokeDashoffset:0,opacity:.9,offset:.6},{strokeDasharray:'100 100',strokeDashoffset:0,opacity:.55}],{duration:600*T,delay:1450*T,easing:out});
+  A(lens,[{transform:'scale(1)'},{transform:'scale(.9)',offset:.4},{transform:'scale(1.06)',offset:.75},{transform:'scale(1)'}],{duration:420*T,delay:1700*T,easing:out,fill:'forwards'});
+  // 2 the name pops letter by letter as the lens slides left
+  letters.forEach((s,i)=>{const lime=i>=5;A(s,[{transform:'translateY(60%) scale(.3) rotate(-14deg)',opacity:0},{transform:`translateY(-${lime?22:12}%) scale(${lime?1.18:1.08}) rotate(${lime?4:2}deg)`,opacity:1,offset:.6},{transform:'none',opacity:1}],{duration:(lime?520:440)*T,delay:(1950+i*65+(lime?120:0))*T,easing:spring})});
+  A(tag,[{opacity:0,transform:'translateY(10px)',letterSpacing:'.4em'},{opacity:1,transform:'none',letterSpacing:'.12em'}],{duration:700*T,delay:2850*T,easing:out});
+  // 3 hold, then exit and loop
+  const hold=5200;
+  timer=setTimeout(()=>{
+    if(!loopOn)return;
+    letters.forEach((s,i)=>A(s,[{transform:'none',opacity:1},{transform:'translateY(40%) scale(.6)',opacity:0}],{duration:260,delay:(letters.length-i)*28,easing:inn}));
+    A(tag,[{opacity:1},{opacity:0}],{duration:250,easing:inn});
+    A(lens,[{transform:'scale(1)'},{transform:'scale(1.1)',offset:.3},{transform:'scale(0) rotate(90deg)'}],{duration:520,delay:300,easing:inn});
+    timer=setTimeout(()=>{if(loopOn&&!paused)play()},1050);
+  },hold*T);
+}
+
+$('replay').onclick=play;
+$('stage').onclick=play;
+$('loop').onclick=e=>{loopOn=!loopOn;e.currentTarget.setAttribute('aria-pressed',loopOn);if(loopOn)play()};
+$('bg').onclick=e=>{const on=$('stage').classList.toggle('light');e.currentTarget.setAttribute('aria-pressed',on)};
+addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();paused=!paused;anims.forEach(a=>paused?a.pause():a.play());if(!paused&&!anims.some(a=>a.playState==='running'))play()}});
+document.fonts?.ready.then(play);setTimeout(()=>{if(!anims.length)play()},800);
+
+if(/[?&]embed/.test(location.search))document.getElementById('stage').classList.add('light');
+window.ulLogo={play,stop:()=>{loopOn=false;clear()},start:()=>{loopOn=true;play()}};
+if(/[?&]embed/.test(location.search)){
+  addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','ArrowUp','ArrowDown',' ','PageDown','PageUp','Enter','Backspace'].includes(e.key)){e.stopImmediatePropagation();e.preventDefault();parent.postMessage({ulKey:e.key},'*')}},true);
+}
+</script>
+
+</body></html>
